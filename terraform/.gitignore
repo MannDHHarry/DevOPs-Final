@@ -11,6 +11,13 @@ app/public/uploads/*
 #SSH Keys
 keys/
 
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
+
 # Mac junk files
 .DS_Store
 __MACOSX/
