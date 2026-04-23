@@ -1,0 +1,17 @@
+# Dependencies — never commit these
+app/node_modules
+
+# Environment variables — never commit real .env
+app/.env
+
+# Uploaded files — live on the server, not in git
+app/public/uploads/*
+!app/public/uploads/.gitkeep
+
+#SSH Keys
+keys/
+
+# Mac junk files
+.DS_Store
+__MACOSX/
+._*
