@@ -50,7 +50,33 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 # Monitoring services (Prom/Graf) stay the same as before...
+  prometheus:
+    image: prom/prometheus:latest
+    restart: always
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    deploy:
+      resources:
+        limits:
+          memory: 150M
 
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    ports:
+      - "3001:3000" # Mapping to 3001 to avoid any potential port conflicts
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin # Change this later!
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    depends_on:
+      - prometheus
 volumes:
   mongo_data:
   uploads_data:
