@@ -17,27 +17,28 @@ services:
   app:
     image: akh2100/midterm-app:v1
     environment:
-      - MONGO_URI=mongodb://db:27017/midterm 
+      - MONGO_URI=mongodb://db:27017/midterm
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - uploads_data:/usr/src/app/public/uploads
     deploy:
-      replicas: 2 # Increased for robustness
+      replicas: 2
       resources:
         limits:
-          memory: 200M # Lowered slightly per replica to fit both in RAM
+          memory: 200M
 
   nginx:
     image: nginx:alpine
     restart: always
     ports:
       - "80:80"
-      - "443:443" # Opened for HTTPS
+      - "443:443"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./certbot_etc:/etc/letsencrypt:ro
+      - certbot_etc:/etc/letsencrypt:ro
+      - webroot:/var/www/html:ro
     depends_on:
       - app
 
@@ -53,36 +54,30 @@ services:
     image: prom/prometheus:latest
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-      # This is the most important line:
-      - '--web.external-url=https://akhdev.site/prometheus/'
+      - '--web.external-url=https://vestarex20.shop/prometheus/'
       - '--web.route-prefix=/'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    # Ensure no ports are mapped here
     deploy:
       resources:
         limits:
           memory: 150M
+
   grafana:
     image: grafana/grafana:latest
     container_name: devops-final-grafana
     restart: always
-    # IMPORTANT: Remove 'ports' if you want it only accessible via HTTPS domain
-    # ports:
-    #   - "3001:3000"
     environment:
-      - GF_SERVER_DOMAIN=akhdev.site
-      - GF_SERVER_ROOT_URL=https://akhdev.site/grafana/
+      - GF_SERVER_DOMAIN=vestarex20.shop
+      - GF_SERVER_ROOT_URL=https://vestarex20.shop/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
-      - GF_SECURITY_ADMIN_PASSWORD=admin # Change this after your first login
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana_data:/var/lib/grafana
     deploy:
       resources:
         limits:
           memory: 200M
-
-# Monitoring services (Prom/Graf) stay the same as before...
 
 volumes:
   mongo_data:
