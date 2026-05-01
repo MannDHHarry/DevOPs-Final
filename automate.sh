@@ -7,7 +7,7 @@ echo "🚀 Starting Full System Provisioning..."
 
 # 1. Update and install base dependencies
 sudo apt-get update
-sudo apt-get install -y ca-certificates curl gnupg lsb-release snapd
+sudo apt-get install -y ca-certificates curl gnupg lsb-release
 
 # 2. Install Docker
 echo "🐳 Installing Docker..."
@@ -23,17 +23,7 @@ echo \
 sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# 3. Install Nginx
-echo "🌐 Installing Nginx..."
-sudo apt-get install -y nginx
-
-# 4. Install Certbot (via Snap - the recommended way for Ubuntu)
-echo "🔒 Installing Certbot..."
-sudo snap install core; sudo snap refresh core
-sudo snap install --classic certbot
-sudo ln -s /snap/bin/certbot /usr/bin/certbot || true
-
-# 5. User Permissions setup
+# 3. User Permissions setup
 echo "👤 Configuring user permissions..."
 sudo groupadd docker || true
 sudo usermod -aG docker $USER
@@ -43,5 +33,5 @@ echo "✅ ALL TOOLS INSTALLED SUCCESSFULLY!"
 echo "-----------------------------------------------"
 echo "Next Steps:"
 echo "1. Run: newgrp docker"
-echo "2. Edit your Nginx config for akhdev.site"
-echo "3. Run: sudo certbot --nginx -d akhdev.site -d www.akhdev.site"
+echo "2. Run: docker compose up -d"
+echo "3. Nginx and Certbot are managed as Docker containers — no host install needed."

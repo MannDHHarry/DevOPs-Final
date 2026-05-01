@@ -4,4 +4,8 @@ global:
 scrape_configs:
   - job_name: 'nodejs_app'
     static_configs:
-      - targets: ['app:3000'] # Docker DNS will load balance between your 2 replicas
+      - targets: ['app:3000']
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']

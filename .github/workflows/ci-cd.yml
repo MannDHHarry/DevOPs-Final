@@ -86,7 +86,16 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
- 
+
+      - name: Scan image for vulnerabilities (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.DOCKER_IMAGE }}:latest
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+
   # ─────────────────────────────────────────────
   # JOB 3 — DEPLOY TO EC2 VIA SSH
   # ─────────────────────────────────────────────
@@ -113,14 +122,18 @@ jobs:
           scp -i ~/.ssh/devops-final-key.pem \
             docker-compose.yml \
             ubuntu@${{ secrets.EC2_HOST }}:${{ env.DEPLOY_PATH }}/docker-compose.yml
- 
+
           scp -i ~/.ssh/devops-final-key.pem \
             nginx/default.conf \
             ubuntu@${{ secrets.EC2_HOST }}:${{ env.DEPLOY_PATH }}/nginx/default.conf
- 
+
           scp -i ~/.ssh/devops-final-key.pem \
             prometheus/prometheus.yml \
             ubuntu@${{ secrets.EC2_HOST }}:${{ env.DEPLOY_PATH }}/prometheus/prometheus.yml
+
+          scp -i ~/.ssh/devops-final-key.pem -r \
+            grafana/provisioning \
+            ubuntu@${{ secrets.EC2_HOST }}:${{ env.DEPLOY_PATH }}/grafana/
  
       - name: Deploy on EC2
         run: |
@@ -129,12 +142,12 @@ jobs:
  
             cd ${{ env.DEPLOY_PATH }}
  
-            echo "==> Pulling latest image..."
-            docker pull ${{ env.DOCKER_IMAGE }}:latest
+            echo "==> Pulling image ${{ needs.build.outputs.image_tag }}..."
+            docker pull ${{ env.DOCKER_IMAGE }}:${{ needs.build.outputs.image_tag }}
  
             echo "==> Updating app image tag in compose..."
-            # Replace whatever image tag is in docker-compose.yml with the new one
-            sed -i "s|image: .*devops-final-app.*|image: ${{ env.DOCKER_IMAGE }}:latest|g" docker-compose.yml
+            # Replace whatever image tag is in docker-compose.yml with the new SHA tag
+            sed -i "s|image: .*devops-final-app.*|image: ${{ env.DOCKER_IMAGE }}:${{ needs.build.outputs.image_tag }}|g" docker-compose.yml
  
             echo "==> Rolling restart of app (zero-downtime)..."
             # Scale up new replicas first, then remove old containers
