@@ -1,0 +1,5 @@
+# CVE-2026-31802 - tar symlink traversal in Alpine base image (node:20-alpine)
+# Risk accepted: no fix available in Alpine 3.x at time of scan (ignore-unfixed: true covers this).
+# Mitigated by: container runs as non-root user (appuser), uploads are stored in a named volume,
+# and the tar binary is not exposed or callable by application code.
+CVE-2026-31802
