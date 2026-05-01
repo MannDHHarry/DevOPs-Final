@@ -132,6 +132,9 @@ jobs:
             prometheus/prometheus.yml \
             ubuntu@${{ secrets.EC2_HOST }}:${{ env.DEPLOY_PATH }}/prometheus/prometheus.yml
 
+          ssh -i ~/.ssh/devops-final-key.pem ubuntu@${{ secrets.EC2_HOST }} \
+            "mkdir -p ${{ env.DEPLOY_PATH }}/grafana/provisioning"
+
           scp -i ~/.ssh/devops-final-key.pem -r \
             grafana/provisioning \
             ubuntu@${{ secrets.EC2_HOST }}:${{ env.DEPLOY_PATH }}/grafana/
