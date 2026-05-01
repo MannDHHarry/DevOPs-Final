@@ -25,9 +25,6 @@
           - gnupg
           - lsb-release
           - git
-          - nginx
-          - certbot
-          - python3-certbot-nginx
         state: present
 
     # ── 3. Install Docker ────────────────────────────────────

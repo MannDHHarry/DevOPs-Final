@@ -15,7 +15,8 @@ services:
       retries: 5
 
   app:
-    image: akh2100/midterm-app:v1
+    image: akh2100/devops-final-app:latest
+    restart: always
     environment:
       - MONGO_URI=mongodb://db:27017/midterm
     depends_on:
@@ -44,14 +45,30 @@ services:
 
   certbot:
     image: certbot/certbot
+    restart: always
     volumes:
       - certbot_etc:/etc/letsencrypt
       - certbot_var:/var/lib/letsencrypt
       - webroot:/var/www/html
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    restart: always
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
   prometheus:
     image: prom/prometheus:latest
+    restart: always
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--web.external-url=https://vestarex20.shop/prometheus/'
@@ -71,9 +88,10 @@ services:
       - GF_SERVER_DOMAIN=vestarex20.shop
       - GF_SERVER_ROOT_URL=https://vestarex20.shop/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
     deploy:
       resources:
         limits:
