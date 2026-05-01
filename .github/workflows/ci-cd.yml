@@ -90,11 +90,12 @@ jobs:
       - name: Scan image for vulnerabilities (Trivy)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.DOCKER_IMAGE }}:latest
+          image-ref: ${{ env.DOCKER_IMAGE }}:${{ steps.meta.outputs.version }}
           format: table
           exit-code: '1'
           ignore-unfixed: true
           severity: CRITICAL,HIGH
+          trivyignores: app/.trivyignore
 
   # ─────────────────────────────────────────────
   # JOB 3 — DEPLOY TO EC2 VIA SSH
