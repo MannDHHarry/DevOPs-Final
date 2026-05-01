@@ -2,13 +2,23 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const os = require('os');
+const client = require('prom-client');
 const productRoutes = require('./routes/productRoutes');
 const dataSource = require('./services/dataSource');
 const uiRoutes = require('./routes/uiRoutes');
 const path = require('path');
-const fs = require('fs'); 
+const fs = require('fs');
 
 const app = express();
+
+// ── Prometheus metrics ────────────────────────────────────
+client.collectDefaultMetrics();
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
+// ─────────────────────────────────────────────────────────
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
