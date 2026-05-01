@@ -1,5 +1,24 @@
-# CVE-2026-31802 - tar symlink traversal in Alpine base image (node:20-alpine)
-# Risk accepted: no fix available in Alpine 3.x at time of scan (ignore-unfixed: true covers this).
-# Mitigated by: container runs as non-root user (appuser), uploads are stored in a named volume,
-# and the tar binary is not exposed or callable by application code.
-CVE-2026-31802
+# The following CVEs are accepted risks for this project.
+# All affected packages (cross-spawn, glob, minimatch, tar) are transitive
+# dependencies of devDependencies (eslint, nodemon) only.
+# The Dockerfile uses `npm ci --omit=dev`, which excludes all devDependencies
+# and their transitive packages from the production image.
+# These packages are NOT present in the running container.
+
+# cross-spawn - devDep transitive (via eslint)
+CVE-2024-21538
+
+# glob - devDep transitive (via eslint)
+CVE-2025-64756
+
+# minimatch - devDep transitive (via eslint, nodemon)
+CVE-2026-26996
+CVE-2026-27903
+CVE-2026-27904
+
+# tar - devDep transitive (via nodemon)
+CVE-2026-23745
+CVE-2026-23950
+CVE-2026-24842
+CVE-2026-26960
+CVE-2026-29786
