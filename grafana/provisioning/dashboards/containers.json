@@ -46,25 +46,24 @@
     },
     {
       "id": 3,
-      "title": "Container Status (Last Seen)",
+      "title": "Container Status",
       "type": "stat",
       "gridPos": { "x": 0, "y": 8, "w": 24, "h": 6 },
       "targets": [
         {
-          "expr": "time() - container_last_seen{image!='', container!='POD'}",
+          "expr": "container_start_time_seconds{image!='', container!='POD', name!=''}",
           "legendFormat": "{{ name }}",
           "datasource": { "type": "prometheus", "uid": "prometheus" }
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "s",
+          "unit": "dateTimeAsLocal",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 30 },
-              { "color": "red", "value": 60 }
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
             ]
           },
           "mappings": []
@@ -73,7 +72,8 @@
       "options": {
         "reduceOptions": { "calcs": ["lastNotNull"] },
         "orientation": "auto",
-        "colorMode": "background"
+        "colorMode": "background",
+        "textMode": "value"
       }
     },
     {
