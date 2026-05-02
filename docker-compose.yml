@@ -4,6 +4,7 @@ services:
     restart: always
     volumes:
       - mongo_data:/data/db
+      - mongo_configdb:/data/configdb
     deploy:
       resources:
         limits:
@@ -74,6 +75,7 @@ services:
       - '--web.external-url=https://vestarex20.shop/prometheus/'
       - '--web.route-prefix=/'
     volumes:
+      - prometheus_data:/prometheus
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     deploy:
       resources:
@@ -99,8 +101,10 @@ services:
 
 volumes:
   mongo_data:
+  mongo_configdb:
   uploads_data:
   grafana_data:
   certbot_etc:
   certbot_var:
   webroot:
+  prometheus_data:
