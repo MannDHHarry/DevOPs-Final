@@ -120,35 +120,31 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/devops-final-key.pem
           chmod 600 ~/.ssh/devops-final-key.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          cat >> ~/.ssh/config << EOF
+          Host ec2
+            HostName ${{ secrets.EC2_HOST }}
+            User ubuntu
+            IdentityFile ~/.ssh/devops-final-key.pem
+            ControlMaster auto
+            ControlPath ~/.ssh/control-%C
+            ControlPersist 10m
+            ServerAliveInterval 30
+            ServerAliveCountMax 20
+          EOF
+          ssh -Nf ec2
  
       # Push latest docker-compose.yml and nginx config to the server
       - name: Sync config files to EC2
         run: |
-          scp -i ~/.ssh/devops-final-key.pem \
-            docker-compose.yml \
-            ubuntu@${{ secrets.EC2_HOST }}:${{ env.DEPLOY_PATH }}/docker-compose.yml
-
-          scp -i ~/.ssh/devops-final-key.pem \
-            nginx/default.conf \
-            ubuntu@${{ secrets.EC2_HOST }}:${{ env.DEPLOY_PATH }}/nginx/default.conf
-
-          scp -i ~/.ssh/devops-final-key.pem \
-            prometheus/prometheus.yml \
-            ubuntu@${{ secrets.EC2_HOST }}:${{ env.DEPLOY_PATH }}/prometheus/prometheus.yml
-
-          ssh -i ~/.ssh/devops-final-key.pem ubuntu@${{ secrets.EC2_HOST }} \
-            "mkdir -p ${{ env.DEPLOY_PATH }}/grafana/provisioning"
-
-          scp -i ~/.ssh/devops-final-key.pem -r \
-            grafana/provisioning \
-            ubuntu@${{ secrets.EC2_HOST }}:${{ env.DEPLOY_PATH }}/grafana/
+          scp docker-compose.yml ec2:${{ env.DEPLOY_PATH }}/docker-compose.yml
+          scp nginx/default.conf ec2:${{ env.DEPLOY_PATH }}/nginx/default.conf
+          scp prometheus/prometheus.yml ec2:${{ env.DEPLOY_PATH }}/prometheus/prometheus.yml
+          ssh ec2 "mkdir -p ${{ env.DEPLOY_PATH }}/grafana/provisioning"
+          scp -r grafana/provisioning ec2:${{ env.DEPLOY_PATH }}/grafana/
  
       - name: Deploy on EC2
         run: |
-          ssh -i ~/.ssh/devops-final-key.pem \
-            -o ServerAliveInterval=30 \
-            -o ServerAliveCountMax=20 \
-            ubuntu@${{ secrets.EC2_HOST }} << 'ENDSSH'
+          ssh ec2 << 'ENDSSH'
             set -e
  
             cd ${{ env.DEPLOY_PATH }}
