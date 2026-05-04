@@ -102,6 +102,7 @@ services:
       - GF_SERVER_ROOT_URL=https://vestarex20.shop/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SERVER_PROTOCOL=http
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
