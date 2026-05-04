@@ -160,16 +160,19 @@ jobs:
             sed -i "s|image: .*devops-final-app.*|image: ${{ env.DOCKER_IMAGE }}:${{ needs.build.outputs.image_tag }}|g" docker-compose.yml
  
             echo "==> Starting any new services (cadvisor, etc.)..."
-            docker compose up -d --no-deps cadvisor prometheus alertmanager grafana certbot nginx db
+            docker compose up -d --no-deps cadvisor prometheus alertmanager grafana certbot db
+
+            echo "==> Reloading nginx config (before app restart to avoid OOM spike)..."
+            docker compose up -d --no-deps nginx
+            sleep 5
+            docker kill --signal=HUP $(docker compose ps -q nginx) || true
 
             echo "==> Rolling restart of app (zero-downtime)..."
             # Scale up new replicas first, then remove old containers
             docker compose up -d --no-deps --scale app=4 app
-            sleep 15
+            sleep 20
             docker compose up -d --no-deps --scale app=2 app
- 
-            echo "==> Reloading nginx config..."
-            docker compose exec -T nginx nginx -s reload
+            sleep 10
  
             echo "==> Cleaning up unused images..."
             docker image prune -f
