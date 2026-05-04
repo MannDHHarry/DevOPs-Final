@@ -1,0 +1,84 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: DevOps Final Alerts
+    folder: Alerts
+    interval: 1m
+    rules:
+
+      # Alert when the Node.js app is unreachable by Prometheus
+      - uid: app-down-rule
+        title: App Down
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: prometheus-ds
+            model:
+              expr: up{job="nodejs_app"}
+              instant: true
+              refId: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [1]
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+              refId: B
+              type: classic_conditions
+        noDataState: Alerting
+        execErrState: Error
+        for: 30s
+        annotations:
+          summary: "Node.js app is unreachable"
+        labels:
+          severity: critical
+        isPaused: false
+
+      # Alert when HTTP error rate is high
+      - uid: high-error-rate-rule
+        title: High HTTP Error Rate
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: prometheus-ds
+            model:
+              expr: rate(http_errors_total[5m])
+              instant: true
+              refId: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              conditions:
+                - evaluator:
+                    params: [0.05]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+              refId: B
+              type: classic_conditions
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "HTTP error rate above 0.05 req/s"
+        labels:
+          severity: warning
+        isPaused: false

@@ -139,6 +139,9 @@ jobs:
           scp docker-compose.yml ec2:${{ env.DEPLOY_PATH }}/docker-compose.yml
           scp nginx/default.conf ec2:${{ env.DEPLOY_PATH }}/nginx/default.conf
           scp prometheus/prometheus.yml ec2:${{ env.DEPLOY_PATH }}/prometheus/prometheus.yml
+          scp prometheus/alerts.yml ec2:${{ env.DEPLOY_PATH }}/prometheus/alerts.yml
+          ssh ec2 "mkdir -p ${{ env.DEPLOY_PATH }}/alertmanager"
+          scp alertmanager/alertmanager.yml ec2:${{ env.DEPLOY_PATH }}/alertmanager/alertmanager.yml
           ssh ec2 "mkdir -p ${{ env.DEPLOY_PATH }}/grafana/provisioning"
           scp -r grafana/provisioning ec2:${{ env.DEPLOY_PATH }}/grafana/
  
@@ -157,7 +160,7 @@ jobs:
             sed -i "s|image: .*devops-final-app.*|image: ${{ env.DOCKER_IMAGE }}:${{ needs.build.outputs.image_tag }}|g" docker-compose.yml
  
             echo "==> Starting any new services (cadvisor, etc.)..."
-            docker compose up -d --no-deps cadvisor prometheus grafana certbot nginx db
+            docker compose up -d --no-deps cadvisor prometheus alertmanager grafana certbot nginx db
 
             echo "==> Rolling restart of app (zero-downtime)..."
             # Scale up new replicas first, then remove old containers

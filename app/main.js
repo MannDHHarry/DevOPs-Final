@@ -13,14 +13,54 @@ const app = express();
 
 // ── Prometheus metrics ────────────────────────────────────
 client.collectDefaultMetrics();
+
+const httpRequestsTotal = new client.Counter({
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status_code']
+});
+
+const httpErrorsTotal = new client.Counter({
+  name: 'http_errors_total',
+  help: 'Total number of HTTP errors (4xx/5xx)',
+  labelNames: ['method', 'route', 'status_code']
+});
+
+const httpRequestDurationSeconds = new client.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'route', 'status_code'],
+  buckets: [0.01, 0.05, 0.1, 0.5, 1, 2, 5]
+});
+
 app.get('/metrics', async (req, res) => {
   res.set('Content-Type', client.register.contentType);
   res.end(await client.register.metrics());
 });
 // ─────────────────────────────────────────────────────────
 
+// ── Load-balancer demo endpoint ───────────────────────────
+app.get('/whoami', (req, res) => {
+  res.json({ container: os.hostname() });
+});
+// ─────────────────────────────────────────────────────────
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ── HTTP metrics middleware ───────────────────────────────
+app.use((req, res, next) => {
+  const end = httpRequestDurationSeconds.startTimer();
+  res.on('finish', () => {
+    const route = req.route ? req.route.path : req.path;
+    const labels = { method: req.method, route, status_code: res.statusCode };
+    httpRequestsTotal.inc(labels);
+    if (res.statusCode >= 400) httpErrorsTotal.inc(labels);
+    end(labels);
+  });
+  next();
+});
+// ─────────────────────────────────────────────────────────
 
 // view engine and static
 app.set('views', path.join(__dirname, 'views'));
