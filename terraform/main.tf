@@ -40,6 +40,7 @@ resource "aws_security_group" "devops_final_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -55,7 +56,7 @@ resource "aws_security_group" "devops_final_sg" {
 # ── EC2 Instance ─────────────────────────────────────────────
 resource "aws_instance" "devops_final_server" {
   ami                    = "ami-0df7a207adb9748c7"
-  instance_type          = "t3.micro"
+  instance_type          = "t3.small"
   key_name               = "devops-final-key"
   vpc_security_group_ids = [aws_security_group.devops_final_sg.id]
 
@@ -69,13 +70,23 @@ resource "aws_instance" "devops_final_server" {
   }
 }
 
+# ── Elastic IP ───────────────────────────────────────────────
+resource "aws_eip" "devops_final_eip" {
+  instance = aws_instance.devops_final_server.id
+  domain   = "vpc"
+
+  tags = {
+    Name = "devops-final-eip"
+  }
+}
+
 # ── Outputs ──────────────────────────────────────────────────
 output "server_public_ip" {
-  description = "EC2 public IP — share with your team"
-  value       = aws_instance.devops_final_server.public_ip
+  description = "Elastic IP — stable across instance stop/start"
+  value       = aws_eip.devops_final_eip.public_ip
 }
 
 output "ssh_command" {
   description = "Ready-to-use SSH command"
-  value       = "ssh -i keys/devops-final-key.pem ubuntu@${aws_instance.devops_final_server.public_ip}"
+  value       = "ssh -i keys/devops-final-key.pem ubuntu@${aws_eip.devops_final_eip.public_ip}"
 }
