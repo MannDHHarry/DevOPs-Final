@@ -188,7 +188,7 @@ jobs:
  
     steps:
       - name: Wait for app to be ready
-        run: sleep 20
+        run: sleep 25
  
       - name: Health check — HTTPS endpoint
         run: |
