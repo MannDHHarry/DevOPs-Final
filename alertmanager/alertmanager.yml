@@ -1,0 +1,26 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'severity']
+  group_wait: 10s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: 'webhook'
+
+receivers:
+  - name: 'webhook'
+    webhook_configs:
+      # Replace this URL with your actual webhook endpoint.
+      # Options:
+      #   Discord:      https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN
+      #   Slack:        https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
+      #   webhook.site: https://webhook.site/YOUR-UUID  (free, no signup)
+      - url: 'https://webhook.site/24e90dd5-843e-4ec5-ae87-f390930dbdda'
+        send_resolved: true
+
+inhibit_rules:
+  # Suppress warning alerts for the same alertname if a critical is already firing
+  - source_matchers: [severity="critical"]
+    target_matchers: [severity="warning"]
+    equal: ['alertname']

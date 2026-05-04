@@ -1,0 +1,33 @@
+groups:
+  - name: app_alerts
+    rules:
+
+      # Fires when the Node.js app stops responding to Prometheus scrapes
+      - alert: AppDown
+        expr: up{job="nodejs_app"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node.js app is down"
+          description: "The app container has been unreachable for more than 30 seconds."
+
+      # Fires when HTTP error rate exceeds 0.05 errors/sec over a 5-min window
+      - alert: HighErrorRate
+        expr: rate(http_errors_total[5m]) > 0.05
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP error rate detected"
+          description: "More than 0.05 HTTP errors/sec in the last 5 minutes."
+
+      # Fires when app container memory exceeds 180MB (limit is 200MB)
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes{container_label_com_docker_compose_service="app"} > 180000000
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "App container memory near limit"
+          description: "App container memory has exceeded 180MB (limit: 200MB) for 2 minutes."

@@ -67,6 +67,16 @@ services:
         limits:
           memory: 128M
 
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    restart: always
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+
   prometheus:
     image: prom/prometheus:latest
     restart: always
@@ -77,6 +87,7 @@ services:
     volumes:
       - prometheus_data:/prometheus
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
     deploy:
       resources:
         limits:
