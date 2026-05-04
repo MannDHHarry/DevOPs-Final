@@ -169,7 +169,7 @@ jobs:
             docker compose up -d --no-deps --scale app=2 app
             sleep 5
 
-            echo "==> Force-recreating nginx (app is up, Docker DNS resolves cleanly)..."
+            echo "==> Recreating nginx (app is up, Docker DNS resolves cleanly)..."
             docker compose up -d --force-recreate --no-deps nginx
  
             echo "==> Cleaning up unused images..."
