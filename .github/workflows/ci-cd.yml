@@ -159,17 +159,18 @@ jobs:
             # Replace whatever image tag is in docker-compose.yml with the new SHA tag
             sed -i "s|image: .*devops-final-app.*|image: ${{ env.DOCKER_IMAGE }}:${{ needs.build.outputs.image_tag }}|g" docker-compose.yml
  
-            echo "==> Starting any new services..."
-            docker compose up -d --no-deps cadvisor prometheus alertmanager grafana certbot nginx db
+            echo "==> Starting support services (no nginx yet)..."
+            docker compose up -d --no-deps cadvisor prometheus alertmanager grafana certbot db
 
             echo "==> Rolling restart of app (zero-downtime)..."
             # Scale up new replicas first, then remove old containers
             docker compose up -d --no-deps --scale app=4 app
-            sleep 20
+            sleep 15
             docker compose up -d --no-deps --scale app=2 app
+            sleep 5
 
-            echo "==> Reloading nginx config..."
-            docker compose exec -T nginx nginx -s reload
+            echo "==> Starting nginx (after app is up, respects depends_on)..."
+            docker compose up -d nginx
  
             echo "==> Cleaning up unused images..."
             docker image prune -f
