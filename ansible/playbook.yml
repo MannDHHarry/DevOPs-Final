@@ -55,6 +55,17 @@
         state: started
         enabled: yes
 
+    - name: Remove host nginx (conflicts with Docker nginx on port 80/443)
+      apt:
+        name:
+          - nginx
+          - nginx-common
+          - nginx-core
+        state: absent
+        purge: yes
+        autoremove: yes
+      ignore_errors: yes
+
     - name: Add ubuntu user to docker group
       user:
         name: ubuntu
