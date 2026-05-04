@@ -13,6 +13,9 @@ groups:
         condition: B
         data:
           - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: prometheus-ds
             model:
               expr: up{job="nodejs_app"}
@@ -21,6 +24,9 @@ groups:
               intervalMs: 1000
               maxDataPoints: 43200
           - refId: B
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "-100"
             model:
               conditions:
@@ -51,6 +57,9 @@ groups:
         condition: B
         data:
           - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: prometheus-ds
             model:
               expr: rate(http_errors_total[5m])
@@ -59,6 +68,9 @@ groups:
               intervalMs: 1000
               maxDataPoints: 43200
           - refId: B
+            relativeTimeRange:
+              from: 300
+              to: 0
             datasourceUid: "-100"
             model:
               conditions:
