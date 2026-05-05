@@ -8,7 +8,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 512M
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
@@ -72,6 +72,7 @@ services:
     restart: always
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
     deploy:
       resources:
         limits:
@@ -120,3 +121,4 @@ volumes:
   certbot_var:
   webroot:
   prometheus_data:
+  alertmanager_data:
