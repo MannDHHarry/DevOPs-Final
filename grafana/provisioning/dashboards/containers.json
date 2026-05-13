@@ -2,7 +2,7 @@
   "title": "DevOps Final – Container Overview",
   "uid": "devops-final-containers",
   "schemaVersion": 36,
-  "version": 1,
+  "version": 2,
   "refresh": "15s",
   "time": { "from": "now-30m", "to": "now" },
   "panels": [
@@ -51,14 +51,54 @@
       "gridPos": { "x": 0, "y": 8, "w": 24, "h": 6 },
       "targets": [
         {
-          "expr": "container_start_time_seconds{image!='', container!='POD', name!=''}",
-          "legendFormat": "{{ name }}",
+          "expr": "clamp_max(count(container_start_time_seconds{name=\"devops-final-alertmanager-1\"}), 1) or on() vector(0)",
+          "legendFormat": "alertmanager",
+          "datasource": { "type": "prometheus", "uid": "prometheus" }
+        },
+        {
+          "expr": "clamp_max(count(container_start_time_seconds{name=\"devops-final-app-1\"}), 1) or on() vector(0)",
+          "legendFormat": "app-1",
+          "datasource": { "type": "prometheus", "uid": "prometheus" }
+        },
+        {
+          "expr": "clamp_max(count(container_start_time_seconds{name=\"devops-final-app-2\"}), 1) or on() vector(0)",
+          "legendFormat": "app-2",
+          "datasource": { "type": "prometheus", "uid": "prometheus" }
+        },
+        {
+          "expr": "clamp_max(count(container_start_time_seconds{name=\"devops-final-cadvisor-1\"}), 1) or on() vector(0)",
+          "legendFormat": "cadvisor",
+          "datasource": { "type": "prometheus", "uid": "prometheus" }
+        },
+        {
+          "expr": "clamp_max(count(container_start_time_seconds{name=\"devops-final-certbot-1\"}), 1) or on() vector(0)",
+          "legendFormat": "certbot",
+          "datasource": { "type": "prometheus", "uid": "prometheus" }
+        },
+        {
+          "expr": "clamp_max(count(container_start_time_seconds{name=\"devops-final-db-1\"}), 1) or on() vector(0)",
+          "legendFormat": "db",
+          "datasource": { "type": "prometheus", "uid": "prometheus" }
+        },
+        {
+          "expr": "clamp_max(count(container_start_time_seconds{name=\"devops-final-grafana\"}), 1) or on() vector(0)",
+          "legendFormat": "grafana",
+          "datasource": { "type": "prometheus", "uid": "prometheus" }
+        },
+        {
+          "expr": "clamp_max(count(container_start_time_seconds{name=\"devops-final-nginx-1\"}), 1) or on() vector(0)",
+          "legendFormat": "nginx",
+          "datasource": { "type": "prometheus", "uid": "prometheus" }
+        },
+        {
+          "expr": "clamp_max(count(container_start_time_seconds{name=\"devops-final-prometheus-1\"}), 1) or on() vector(0)",
+          "legendFormat": "prometheus",
           "datasource": { "type": "prometheus", "uid": "prometheus" }
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "dateTimeAsLocal",
+          "unit": "none",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -66,14 +106,22 @@
               { "color": "green", "value": 1 }
             ]
           },
-          "mappings": []
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": { "text": "Down", "color": "red", "index": 0 },
+                "1": { "text": "Up", "color": "green", "index": 1 }
+              }
+            }
+          ]
         }
       },
       "options": {
         "reduceOptions": { "calcs": ["lastNotNull"] },
         "orientation": "auto",
         "colorMode": "background",
-        "textMode": "value"
+        "textMode": "value_and_name"
       }
     },
     {

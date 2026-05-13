@@ -16,7 +16,7 @@ groups:
             relativeTimeRange:
               from: 300
               to: 0
-            datasourceUid: prometheus-ds
+            datasourceUid: prometheus
             model:
               expr: up{job="nodejs_app"}
               instant: true
@@ -60,7 +60,7 @@ groups:
             relativeTimeRange:
               from: 300
               to: 0
-            datasourceUid: prometheus-ds
+            datasourceUid: prometheus
             model:
               expr: rate(http_errors_total[5m])
               instant: true
